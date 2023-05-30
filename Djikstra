@@ -1,0 +1,94 @@
+import java.util.*;
+
+public class DijkstraAlgorithm {
+    private static final int INFINITY = Integer.MAX_VALUE;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of nodes: ");
+        int numNodes = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        Map<String, Map<String, Integer>> graph = new HashMap<>();
+
+        // Get nodes and values from the user
+        for (int i = 0; i < numNodes; i++) {
+            System.out.print("Enter the node: ");
+            String node = scanner.nextLine();
+
+            Map<String, Integer> neighbors = new HashMap<>();
+            System.out.print("Enter the number of neighbors for " + node + ": ");
+            int numNeighbors = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
+            for (int j = 0; j < numNeighbors; j++) {
+                System.out.print("Enter neighbor and weight (space-separated) for " + node + ": ");
+                String[] neighborInfo = scanner.nextLine().split(" ");
+                String neighbor = neighborInfo[0];
+                int weight = Integer.parseInt(neighborInfo[1]);
+                neighbors.put(neighbor, weight);
+            }
+
+            graph.put(node, neighbors);
+        }
+
+        System.out.print("Enter the start node: ");
+        String startNode = scanner.nextLine();
+
+        scanner.close();
+
+        Map<String, Integer> distances = dijkstra(graph, startNode);
+
+        // Print the shortest distances
+        System.out.println("Shortest distances from node " + startNode);
+        for (Map.Entry<String, Integer> entry : distances.entrySet()) {
+            String node = entry.getKey();
+            int distance = entry.getValue();
+            System.out.println("Node: " + node + " - Distance: " + distance);
+        }
+    }
+
+    private static Map<String, Integer> dijkstra(Map<String, Map<String, Integer>> graph, String startNode) {
+        Map<String, Integer> distances = new HashMap<>();
+        Set<String> visited = new HashSet<>();
+
+        // Initialize distances with infinity for all nodes except the start node
+        for (String node : graph.keySet()) {
+            distances.put(node, INFINITY);
+        }
+        distances.put(startNode, 0);
+
+        // Loop through all nodes
+        while (visited.size() != graph.size()) {
+            String minNode = null;
+            int minDistance = INFINITY;
+
+            // Find the node with the minimum distance
+            for (String node : graph.keySet()) {
+                if (!visited.contains(node) && distances.get(node) < minDistance) {
+                    minNode = node;
+                    minDistance = distances.get(node);
+                }
+            }
+
+            // Mark the current node as visited
+            visited.add(minNode);
+
+            // Update distances for neighboring nodes
+            if (graph.containsKey(minNode)) {
+                Map<String, Integer> neighbors = graph.get(minNode);
+                for (Map.Entry<String, Integer> entry : neighbors.entrySet()) {
+                    String neighbor = entry.getKey();
+                    int weight = entry.getValue();
+                    int newDistance = distances.get(minNode) + weight;
+                    if (newDistance < distances.get(neighbor)) {
+                        distances.put(neighbor, newDistance);
+                    }
+                }
+            }
+        }
+
+        return distances;
+    }
+}
